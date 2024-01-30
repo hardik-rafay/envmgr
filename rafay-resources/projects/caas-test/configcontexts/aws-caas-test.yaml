@@ -1,11 +1,11 @@
-
 apiVersion: eaas.envmgmt.io/v1
-Config context:
 kind: ConfigContext
 metadata:
   name: aws-caas-test
   project: caas-test
 spec:
+  secret:
+    name: file://artifacts/aws-caas-test/sealed-secret.yaml
   variables:
   - name: rolearn
     options:
@@ -13,7 +13,7 @@ spec:
         type: allowed
       required: true
       sensitive: true
-    value: UPDATE_VALUE
+    value: sealed://variables.0
     valueType: text
   - name: externalid
     options:
@@ -21,5 +21,6 @@ spec:
         type: allowed
       required: true
       sensitive: true
-    value: UPDATE_VALUE
+    value: sealed://variables.1
     valueType: text
+status: {}
