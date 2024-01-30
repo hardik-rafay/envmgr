@@ -86,90 +86,90 @@ else
 fi
 printf -- "\033[32m Info: Restore Values.yaml - SUCCESS \033[0m\n";
 
-##Create Secret Sealer to encrypt sensitive data(i.e password)
-if ! rctl apply -f $PWD/spec/${spec_array[0]}.yaml ; then
-    printf -- "\033[31m ERROR: Failed to create secret-sealer  - FAILED \033[0m\n";
-    exit
-else
-    printf -- "\033[32m Info: Secret-sealer created  - SUCCESS \033[0m\n";
-fi
+# ##Create Secret Sealer to encrypt sensitive data(i.e password)
+# if ! rctl apply -f $PWD/spec/${spec_array[0]}.yaml ; then
+#     printf -- "\033[31m ERROR: Failed to create secret-sealer  - FAILED \033[0m\n";
+#     exit
+# else
+#     printf -- "\033[32m Info: Secret-sealer created  - SUCCESS \033[0m\n";
+# fi
 
-##Create and deploy Gitops Agent
-if ! rctl apply -f $PWD/spec/${spec_array[1]}.yaml ; then
-#if ! rctl create agent -p $project -f $PWD/spec/${spec_array[1]}.yaml --run ; then
-    printf -- "\033[31m ERROR: Failed to create gitops agent - FAILED \033[0m\n";
-    exit
-else
-    printf -- "\033[32m Info: Gitops agent created  - SUCCESS \033[0m\n";
-fi
-
-
-##Get Gitops Agent ID
-sleep 5
-agentId=`rctl get agent -p $project ${spec_array[1]} -o json  | jq .metadata.id | tr -d '"'`
-if [ -z "$agentId" ]; then
-  printf -- "\033[31m ERROR: Failed to get agent ID - FAILED \033[0m\n";
-  exit
-fi 
+# ##Create and deploy Gitops Agent
+# if ! rctl apply -f $PWD/spec/${spec_array[1]}.yaml ; then
+# #if ! rctl create agent -p $project -f $PWD/spec/${spec_array[1]}.yaml --run ; then
+#     printf -- "\033[31m ERROR: Failed to create gitops agent - FAILED \033[0m\n";
+#     exit
+# else
+#     printf -- "\033[32m Info: Gitops agent created  - SUCCESS \033[0m\n";
+# fi
 
 
-rm -rf relayConfigData-$agentId.json docker-compose-$agentId.yaml
-##Download agent config files
-rctl get agent -p $project ${spec_array[1]} -o json --v3 | \
- jq -r -c '.status.extra.files[] | select ( .name == "relayConfigData-'$agentId'.json" ) | .data'| \
- base64 -d >> $HOME/relayConfigData-$agentId.json
-
-rctl get agent -p $project ${spec_array[1]} -o json --v3 \
-| jq -r -c '.status.extra.files[] | select ( .name == "docker-compose-'$agentId'.yaml" ) | .data' | \
-base64 -d >> $HOME/docker-compose-$agentId.yaml
+# ##Get Gitops Agent ID
+# sleep 5
+# agentId=`rctl get agent -p $project ${spec_array[1]} -o json  | jq .metadata.id | tr -d '"'`
+# if [ -z "$agentId" ]; then
+#   printf -- "\033[31m ERROR: Failed to get agent ID - FAILED \033[0m\n";
+#   exit
+# fi 
 
 
-##Run docker-compose
-if ! docker-compose -f $HOME/docker-compose-$agentId.yaml up -d ; then
-   printf -- "\033[31m ERROR: Failed to deploy agent  - FAILED \033[0m\n";
-   exit
-else
-   printf -- "\033[32m Info: Agent deployed - SUCCESS \033[0m\n";
-fi
+# rm -rf relayConfigData-$agentId.json docker-compose-$agentId.yaml
+# ##Download agent config files
+# rctl get agent -p $project ${spec_array[1]} -o json --v3 | \
+#  jq -r -c '.status.extra.files[] | select ( .name == "relayConfigData-'$agentId'.json" ) | .data'| \
+#  base64 -d >> $HOME/relayConfigData-$agentId.json
 
-##Wait for gitops agent to be healthy
-STATUS_ITERATIONS=1
-agentStatus=`rctl get agent -p $project ${spec_array[1]} -o json --v3 | jq .status.conditionType | tr -d '"'`
-while [ $agentStatus != "AgentHealthy" ]
-do
-    sleep 30
-    if [ $STATUS_ITERATIONS -ge 25 ];
-    then
-      break
-      exit 0
-    fi
-    STATUS_ITERATIONS=$((STATUS_ITERATIONS+1))
-    agentStatus=`rctl get agent -p $project ${spec_array[1]} -o json --v3 | jq .status.conditionType | tr -d '"'`
-    if [ $agentStatus != "AgentHealthy" ]; then
-        printf -- "\033[33m Warn: Agent Status $agentStatus   - WAITING \033[0m\n";
-    else
-        printf -- "\033[32m Info: Agent Status $agentStatus   - SUCCESS \033[0m\n";
-    fi
-done
+# rctl get agent -p $project ${spec_array[1]} -o json --v3 \
+# | jq -r -c '.status.extra.files[] | select ( .name == "docker-compose-'$agentId'.yaml" ) | .data' | \
+# base64 -d >> $HOME/docker-compose-$agentId.yaml
 
-##Create Repository
-if ! rctl apply -f $PWD/spec/${spec_array[2]}.yaml ; then
-    printf -- "\033[31m ERROR: Failed to create repository  - FAILED \033[0m\n";
-    exit
-else
-    printf -- "\033[32m Info: Repository created  - SUCCESS \033[0m\n";
-fi
 
-##Create Pipeline
-if ! rctl apply -f $PWD/spec/${spec_array[3]}.yaml ; then
-      printf -- "\033[31m ERROR: Failed to create pipeline  - FAILED \033[0m\n";
-      exit
-  else
-      printf -- "\033[32m Info: Pipeline created  - SUCCESS \033[0m\n";
-fi
+# ##Run docker-compose
+# if ! docker-compose -f $HOME/docker-compose-$agentId.yaml up -d ; then
+#    printf -- "\033[31m ERROR: Failed to deploy agent  - FAILED \033[0m\n";
+#    exit
+# else
+#    printf -- "\033[32m Info: Agent deployed - SUCCESS \033[0m\n";
+# fi
+
+# ##Wait for gitops agent to be healthy
+# STATUS_ITERATIONS=1
+# agentStatus=`rctl get agent -p $project ${spec_array[1]} -o json --v3 | jq .status.conditionType | tr -d '"'`
+# while [ $agentStatus != "AgentHealthy" ]
+# do
+#     sleep 30
+#     if [ $STATUS_ITERATIONS -ge 25 ];
+#     then
+#       break
+#       exit 0
+#     fi
+#     STATUS_ITERATIONS=$((STATUS_ITERATIONS+1))
+#     agentStatus=`rctl get agent -p $project ${spec_array[1]} -o json --v3 | jq .status.conditionType | tr -d '"'`
+#     if [ $agentStatus != "AgentHealthy" ]; then
+#         printf -- "\033[33m Warn: Agent Status $agentStatus   - WAITING \033[0m\n";
+#     else
+#         printf -- "\033[32m Info: Agent Status $agentStatus   - SUCCESS \033[0m\n";
+#     fi
+# done
+
+# ##Create Repository
+# if ! rctl apply -f $PWD/spec/${spec_array[2]}.yaml ; then
+#     printf -- "\033[31m ERROR: Failed to create repository  - FAILED \033[0m\n";
+#     exit
+# else
+#     printf -- "\033[32m Info: Repository created  - SUCCESS \033[0m\n";
+# fi
+
+# ##Create Pipeline
+# if ! rctl apply -f $PWD/spec/${spec_array[3]}.yaml ; then
+#       printf -- "\033[31m ERROR: Failed to create pipeline  - FAILED \033[0m\n";
+#       exit
+#   else
+#       printf -- "\033[32m Info: Pipeline created  - SUCCESS \033[0m\n";
+# fi
 
 printf -- "\033[33m Info: Wait for 30s for Rafay to write-back to repo - WAITING \033[0m\n";
-sleep 30
+sleep 10
 #Run git pull to get folder structure created by Rafay
 #Create Pipeline
 if ! git pull https://$userName:$token@$endpoint $branch; then

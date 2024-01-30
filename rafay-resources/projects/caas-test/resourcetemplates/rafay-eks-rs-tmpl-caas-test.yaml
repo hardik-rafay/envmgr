@@ -1,24 +1,24 @@
-{{ $glbCtx := . }}
+
 apiVersion: eaas.envmgmt.io/v1
 kind: ResourceTemplate
 metadata:
   description: Updated variables
-  name: {{ $glbCtx.EKSResourceTemplate }}-{{ $glbCtx.projectName }}
-  project: {{ $glbCtx.projectName }}
+  name: rafay-eks-rs-tmpl-caas-test
+  project: caas-test
 spec:
   agents:
-  - name: {{ $glbCtx.agentName }}-{{ $glbCtx.projectName }}
+  - name: eaas-agent-caas-test
   contexts:
-  - name: {{ $glbCtx.RafayConfigContext }}-{{ $glbCtx.projectName }}
+  - name: rafay-caas-test
   provider: terraform
   providerOptions:
     terraform:
       backendType: system
       version: 1.4.6
   repositoryOptions:
-    branch: {{ $glbCtx.branch }}
-    directoryPath: {{ $glbCtx.EKStfRepoPath }}
-    name: {{ $glbCtx.repoName }}-{{ $glbCtx.projectName }}
+    branch: main
+    directoryPath: terraform/aws/101-caas-eks/terraform/eks
+    name: eaas-repo-caas-test
   variables:
   - name: managed_nodegroups
     options:
@@ -56,4 +56,4 @@ spec:
       required: true
     value: minimal
     valueType: text
-  version: {{ $glbCtx.version }}
+  version: v1
