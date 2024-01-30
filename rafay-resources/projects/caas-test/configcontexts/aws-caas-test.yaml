@@ -1,0 +1,25 @@
+
+apiVersion: eaas.envmgmt.io/v1
+Config context:
+kind: ConfigContext
+metadata:
+  name: aws-caas-test
+  project: caas-test
+spec:
+  variables:
+  - name: rolearn
+    options:
+      override:
+        type: allowed
+      required: true
+      sensitive: true
+    value: UPDATE_VALUE
+    valueType: text
+  - name: externalid
+    options:
+      override:
+        type: allowed
+      required: true
+      sensitive: true
+    value: UPDATE_VALUE
+    valueType: text

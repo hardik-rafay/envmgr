@@ -1,0 +1,21 @@
+
+apiVersion: eaas.envmgmt.io/v1
+Config context:
+kind: ConfigContext
+metadata:
+  name: rafay-caas-test
+  project: caas-test
+spec:
+  envs:
+  - key: RCTL_API_KEY
+    sensitive: true
+    value: UPDATE_VALUE
+  - key: RCTL_API_SECRET
+    sensitive: true
+    value: UPDATE_VALUE
+  - key: RCTL_REST_ENDPOINT
+    sensitive: false
+    value: UPDATE_VALUE
+  - key: RCTL_PROJECT
+    sensitive: false
+    value: caas-test

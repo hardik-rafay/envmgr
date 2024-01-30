@@ -1,0 +1,22 @@
+
+apiVersion: eaas.envmgmt.io/v1
+kind: ResourceTemplate
+metadata:
+  description: 'Rafay Add-on Resource Template '
+  name: rafay-addon-rs-tmpl-caas-test
+  project: caas-test
+spec:
+  agents:
+  - name: eaas-agent-caas-test
+  contexts:
+  - name: rafay-caas-test
+  provider: terraform
+  providerOptions:
+    terraform:
+      useSystemStateStore: true
+      version: 1.4.6
+  repositoryOptions:
+    branch: main
+    directoryPath: terraform/aws/101-caas-eks/terraform/addon
+    name: eaas-repo-caas-test
+  version: v1
